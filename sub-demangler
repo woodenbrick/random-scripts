@@ -12,8 +12,10 @@ def convert_file(filepath, from_enc, to_enc):
         shutil.move(filepath, os.path.join(dir, temp_file))
     except IOError:
         sys.exit('The specified file %s could not be found.' % filepath)
-    cmd = "iconv -f %s -t %s %s > %s" % (from_enc, to_enc, temp_file, filepath)
-    os.system(cmd)
+    garbage = file(temp_file).read()
+    garbage = garbage.decode(from_enc)
+    clean = garbage.encode(to_enc)
+    file(filepath, 'w').write(clean)
     os.remove(temp_file)
     
     
