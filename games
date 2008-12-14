@@ -1,0 +1,41 @@
+#!/usr/bin/python
+import subprocess
+#each game has a list associated with it:
+#[0] is the dir to find the iso, we should probably have a default
+#[1] is the iso name
+#[2] is the mount dir, we will have a default
+#[3] is the wine command to run the game
+#[4] might be to umount the cd after usage, may not be implemented
+
+default_iso_dir = '/media/sda3/STORAGE/packages/'
+default_mount_dir = '/media/wow/'
+
+diablo = [default_iso_dir, 'diablo.iso', default_mount_dir, 'wine /home/wode/.wine/drive_c/Program\ Files/Diablo/Diablo.exe', 'Diablo']
+hellfire = [default_iso_dir, 'diablo.iso', default_mount_dir, 'wine /home/wode/.wine/drive_c/SIERRA/HELLFIRE/hellfire.exe', 'Diablo: Hellfire Expansion']
+diablo2 = [default_iso_dir, 'diablo2.iso', default_mount_dir, 'wine /home/wode/.wine/drive_c/Program\ Files/Diablo\ II/D2Loader-1.12.exe', 'Diablo 2']
+#add more games here
+games = [diablo, hellfire, diablo2]
+
+
+def mount_cd(game):
+    print 'Mounting Disc'
+    subprocess.call('sudo mount -o loop %s %s' % (game[0] + game[1], game[2]), shell=True)
+
+def run_game(game):
+    subprocess.call(game[3], shell=True)
+
+def run():
+    #subprocess.call('metacity --replace', shell=True)
+    print 'Choose a game:'
+    num = 1
+    for game in games:
+        print num, '-', game[4]
+        num +=1
+    choice = int(raw_input('>'))-1
+    mount_cd(games[choice])
+    run_game(games[choice])
+    #subprocess.call('compiz --replace', shell = True)
+    #subprocess.call('sudo umount %s' % hellfire[2], shell = True)
+
+if __name__ == '__main__':
+  run()

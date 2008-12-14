@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+import urllib
+import os
+import re
+import time
+import string
+
+def import_ics(ics_addr):
+    """Takes an ics file from google calendar"""
+    urllib.urlretrieve(ics_addr, "basic.ics")
+    
+def export_to_zen(src, dest_folder=100):
+    """Exports the calendar to the correct folder on the zen"""
+    cmd = "mtp-sendfile %s %s" % (src, dest_folder)
+    os.system(cmd)
+
+def fix_time_diff(ics_file):
+    """
+    The cal file must be edited to reflect the users timezone. Fucks me why this
+    isn't automatic
+    we also need to change the timezone dependant on this value X-WR-TIMEZONE:Europe/Sofia
+    """
+    old_ics = open(ics_file, 'r')
+    new_ics = open("calendar.ics", 'w')
+    
+    for line in old_ics.readlines():
+        if "DTSTART" in line or "DTEND" in line:
+            if "VALUE=DATE" in line:
+                new_ics.write(line)
+            else:
+                s = line.split('T')
+                hour = s[-1][0:2]
+                newhour = str(int(hour) + 2)
+                y = s[-1].replace(hour, newhour, 1)
+                s[-1] = y
+                new_date = string.join(s, 'T')
+                new_ics.write(new_date)
+        elif "X-WR-TIMEZONE" in line:
+            timezone = line.split(":")[1]
+            new_ics.write(line)
+        else:
+            new_ics.write(line)
+    
+    def offset_hours(h):
+        """For the moment we will assume a Sofia timezone"""
+        new_hour = h + 2
+        return new_hour
+        
+    
+def run():
+    os.system('mtp-delfile -f calendar.ics')
+    cal_addr = "http://www.google.com/calendar/ical/wodemoneke%40gmail.com/public/basic.ics"
+    import_ics(cal_addr)
+    fix_time_diff("basic.ics")
+    try:
+        export_to_zen("calendar.ics")
+        #os.remove("calendar.ics")
+    except:
+        print 'Error during calendar upload'
+if __name__ == '__main__':
+    run()
+    
