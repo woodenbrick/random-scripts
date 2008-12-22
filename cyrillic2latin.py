@@ -36,59 +36,9 @@ class CyrillicLatin:
         
         
     def convert_to_cyrillic(self, file_name = None):
-        self.new_string = []
-        previous_chars = []
-        ignore = False
-        delete = False
-        self.hold_chars = []
-        self.hold = False
-        for ch in self.mangled_string:            
-            if ch in self.ignore_startpoint:
-                ignore = True
-                self.new_string.append(ch)
-                continue
-                
-            if ch in self.delete_startpoint:
-                delete = True
-                continue
-            
-            if ch in self.ignore_endpoint:
-                ignore = False
-                self.new_string.append(ch)
-                continue
-            
-            if ch in self.delete_endpoint:
-                delete = False
-                continue
-            
-            if ignore is True:
-                self.new_string.append(ch)
-                continue
-            
-            if delete is True:
-                continue
-            
-            
-            if ch in string.whitespace:
-                self.new_string.append(ch)
-            else:
-                try:
-                    i = self.latin_chars.index(ch)
-                    self.should_we_hold(ch)
-                    self.new_string.append(self.cyrillic_chars[i])
-                    previous_chars.append(ch)
-                except:
-                    self.new_string.append('?')
-        self.new_string = unicode(''.join(self.new_string))
-        
-        if file_name is None:
-            return self.new_string
-        
-        else:
-            output = open(file_name, 'w')
-            output.write(self.new_string)
-            
-            
+        for ch in self.mangled_string:
+            index = self.latin_chars.index(ch)
+            print self.cyrillic_chars[index]
 
 if __name__ == '__main__':
     convert_string = """momicheta shte beshe momicheta"""
