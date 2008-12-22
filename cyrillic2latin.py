@@ -36,7 +36,7 @@ class CyrillicLatin:
         
         
     def convert_to_cyrillic(self, file_name = None):
-        self.self.new_string = []
+        self.new_string = []
         previous_chars = []
         ignore = False
         delete = False
@@ -91,12 +91,7 @@ class CyrillicLatin:
             
 
 if __name__ == '__main__':
-    convert_string = """
-[05/12/2008 21:28:43] Boryana Kitina says: margoto shte vzima dve momcheta
-[05/12/2008 21:28:51] Boryana Kitina says: i te q pitali shte ima li svobodni momicheta
-[05/12/2008 21:28:55] Boryana Kitina says: a pak muri
-[05/12/2008 21:29:05] Boryana Kitina says: shte sa napolovina momicheta napolovina momcheta
-"""
+    convert_string = """momicheta shte beshe momicheta"""
     convert = CyrillicLatin(convert_string)
     convert.delete_between('[', ']')
     print(convert.convert_to_cyrillic())
