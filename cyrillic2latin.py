@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
+import optparse
 import string
+import sys
 
 class CyrillicLatin:
     def __init__(self, mangled_string, latin = True):
@@ -30,8 +31,9 @@ class CyrillicLatin:
         self.ignore_endpoint.append(end)
         
     def delete_between(self, start, end):
-        self.delete_startpoint.append(start)
-        self.delete_endpoint.append(end)
+        if start and end:
+            self.delete_startpoint.append(start)
+            self.delete_endpoint.append(end)
   
     def check_holding_chars(self, current_char, temp_chars):
         '''check if the current char and temp chars can be conecated into a longer string
@@ -60,7 +62,7 @@ class CyrillicLatin:
                     self.hold = False
         
   
-    def convert_to_cyrillic(self, file_name = None):
+    def convert_to_cyrillic(self):
         self.hold = False
         self.new_string = []
         temp_chars = None
@@ -78,14 +80,29 @@ class CyrillicLatin:
                     
             except ValueError:
                 #the letter isnt in the list of latin letters, so just print as is.
-                #to start with we will print ? until bugs are ironed out
-                
-                #self.new_string.append(self.latin_chars[index])
                 self.new_string.append(ch)
         return unicode(''.join(self.new_string))
 
 if __name__ == '__main__':
-    convert_string = """beshe momicheta"""
+    parser = optparse.OptionParser()
+    parser.add_option('--input-file', '-i')
+    parser.add_option('--output-file', '-o')
+    parser.add_option('--delete-start', '-d')
+    parser.add_option('--delete-end', '-e')
+    options, args = parser.parse_args()
+    #we require either a string or -i as input
+    #if no -o, print to stdout
+    if options.input_file is not None:
+        convert_string = open(options.input_file, 'r').read()
+    elif len(args) > 0:
+        convert_string = ' '.join(args)
+    else:
+        sys.exit('please pass a string as an argument, or a file name with -i')
+    
     convert = CyrillicLatin(convert_string)
-    convert.delete_between('[', ']')
-    print(convert.convert_to_cyrillic())
+    convert.delete_between(options.delete_start, options.delete_end)
+    output = convert.convert_to_cyrillic()
+    if options.output_file:
+        open(options.output_file, 'w').write()
+    else:
+        print output
