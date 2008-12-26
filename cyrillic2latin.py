@@ -8,7 +8,7 @@ import sys
 class CyrillicLatin:
     def __init__(self, mangled_string, latin = True):
         self.latin_chars = u'a b c d e f g h i j k l m n o p q r s t u v x y z 6 4'.split()
-        self.cyrillic_chars = u'а б с д е ф г х и ж к л м н о п я р с т у в я в х y з б ч'.split()
+        self.cyrillic_chars = u'а б с д е ф г х и ж к л м н о п я р с т у в х y з б ч'.split()
         self.mangled_string = unicode(string.lower(mangled_string))
         self.ignore_startpoint = []
         self.delete_startpoint = []
@@ -35,47 +35,51 @@ class CyrillicLatin:
             self.delete_startpoint.append(start)
             self.delete_endpoint.append(end)
   
-    def check_holding_chars(self, current_char, temp_chars):
-        '''check if the current char and temp chars can be conecated into a longer string
-        if so: return the longer string, and undo the holding situation
-        if not: append the '''
-        try:
-            x = temp_chars + current_char
-        except TypeError:
-            #the temp_chars is empty, just return current
-            return current_char
-        if x in self.hold_chars2:
-            #we have a 2 char string, uncertain if it is finished yet
-            return temp_chars + current_char
+    def unhold(self):
+        self.hold = False
+        
+    def append_chars(self, chars):
+        if chars in self.special_cases:
+            self.new_string.append(self.special_cases[chars])
         else:
-            #if the previous statements weren't true, we can assume that the
-            #temp string is in its final form, perhaps the current_char
-            #will be seperated, and may even makeup a new holdingchar
+            index = self.latin_chars.index(chars)
+            self.new_string.append(self.cyrillic_chars[index])
+    
+    def check_holding_chars(self, current_char, temp_chars):
+        
+        if temp_chars is None:
+            return current_char
+        
+        x = temp_chars + current_char
+        if len(x) == 2:
+            if x in self.hold_chars2:
+                return x
+            
+            else:
+                self.append_chars(temp_chars)
+                if current_char in self.hold_chars:
+                    return current_char
+                else:
+                    self.append_chars(current_char)
+                    self.unhold()
+                    return None
+                
+        
+        elif len(x) == 3:
             if x in self.special_cases:
-                self.new_string.append(self.special_cases[x])
-                self.hold = False
+                self.append_chars(x)
+                self.unhold()
                 return None
             else:
-                #if this is not true, then the previous temp was a letter
-                if len(temp_chars) is 1:
-                    index = self.latin_chars.index(temp_chars)
-                    self.new_string.append(self.cyrillic_chars[index])
-                    self.hold = False
-                    return None
+                self.append_chars(temp_chars)
+                if current_char in self.hold_chars:
+                    return current_char
                 else:
-                    try:
-                        self.new_string.append(self.special_cases[temp_chars])
-                    except KeyError:
-                        self.new_string.append(temp_chars)
-                    if current_char in self.hold_chars:
-                        return current_char
+                    self.append_chars(current_char)
                 
-                    else:
-                        index = self.latin_chars.index(current_char)
-                        self.new_string.append(self.cyrillic_chars[index])
-                        self.hold = False
-                        return None
+            
         
+
   
     def convert_to_cyrillic(self):
         self.hold = False
