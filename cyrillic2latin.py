@@ -103,6 +103,7 @@ if __name__ == '__main__':
     convert.delete_between(options.delete_start, options.delete_end)
     output = convert.convert_to_cyrillic()
     if options.output_file:
-        open(options.output_file, 'w').write()
+        output = output.encode('UTF-8')
+        open(options.output_file, 'w').write(output + '\n')
     else:
         print output
