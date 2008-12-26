@@ -7,8 +7,8 @@ import sys
 
 class CyrillicLatin:
     def __init__(self, mangled_string, latin = True):
-        self.latin_chars = u'a b c d e f g h i j k l m n o p q r s t u v x z 6 4'.split()
-        self.cyrillic_chars = u'а б с д е ф г х и ж к л м н о п я р с т у в я в х з б ч'.split()
+        self.latin_chars = u'a b c d e f g h i j k l m n o p q r s t u v x y z 6 4'.split()
+        self.cyrillic_chars = u'а б с д е ф г х и ж к л м н о п я р с т у в я в х y з б ч'.split()
         self.mangled_string = unicode(string.lower(mangled_string))
         self.ignore_startpoint = []
         self.delete_startpoint = []
@@ -42,8 +42,10 @@ class CyrillicLatin:
         try:
             x = temp_chars + current_char
         except TypeError:
+            #the temp_chars is empty, just return current
             return current_char
         if x in self.hold_chars2:
+            #we have a 2 char string, uncertain if it is finished yet
             return temp_chars + current_char
         else:
             #if the previous statements weren't true, we can assume that the
@@ -52,14 +54,27 @@ class CyrillicLatin:
             if x in self.special_cases:
                 self.new_string.append(self.special_cases[x])
                 self.hold = False
+                return None
             else:
                 #if this is not true, then the previous temp was a letter
-                self.new_string.append(self.special_cases[temp_chars])
-                if current_char in self.hold_chars:
-                    return current_char
-                else:
-                    self.new_string.append(current_char)
+                if len(temp_chars) is 1:
+                    index = self.latin_chars.index(temp_chars)
+                    self.new_string.append(self.cyrillic_chars[index])
                     self.hold = False
+                    return None
+                else:
+                    try:
+                        self.new_string.append(self.special_cases[temp_chars])
+                    except KeyError:
+                        self.new_string.append(temp_chars)
+                    if current_char in self.hold_chars:
+                        return current_char
+                
+                    else:
+                        index = self.latin_chars.index(current_char)
+                        self.new_string.append(self.cyrillic_chars[index])
+                        self.hold = False
+                        return None
         
   
     def convert_to_cyrillic(self):
@@ -98,8 +113,9 @@ if __name__ == '__main__':
         convert_string = ' '.join(args)
     else:
         sys.exit('please pass a string as an argument, or a file name with -i')
-    
+
     convert = CyrillicLatin(convert_string)
+    print options.delete_start, options.delete_end
     convert.delete_between(options.delete_start, options.delete_end)
     output = convert.convert_to_cyrillic()
     if options.output_file:
