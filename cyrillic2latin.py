@@ -89,5 +89,3 @@ if __name__ == '__main__':
     convert = CyrillicLatin(convert_string)
     convert.delete_between('[', ']')
     print(convert.convert_to_cyrillic())
-    print 'ferrets'
-    print 'safas'
