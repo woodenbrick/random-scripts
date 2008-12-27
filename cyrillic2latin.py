@@ -19,7 +19,7 @@ class CyrillicLatin:
         self.hold_chars = ['s', 'y', 'c']
         self.hold_chars2 = ['sh', 'ya', 'yo']
         self.special_cases = {'sh' : u'ш', 'sht' : u'щ', 'you' : u'ю', 'ya' : u'я', 'ch' : u'ч'}
-        
+        self.next = False
         
         
         if latin:
@@ -56,6 +56,10 @@ class CyrillicLatin:
         if len(x) == 2:
             if x in self.hold_chars2:
                 return x
+            elif x in self.special_cases:
+                self.append_chars(x)
+                self.unhold()
+                return None
             
             else:
                 self.append_chars(temp_chars)
@@ -88,10 +92,14 @@ class CyrillicLatin:
         self.unhold()
         return None
         
-    def check_delete(char, current_delete_value):
-        if char in self.delete_start_point:
+    def check_delete(self, char, current_delete_value):
+        if char in self.delete_startpoint:
             return True
-        if char in self.delete_end_point:
+        if char in self.delete_endpoint:
+            self.next = True
+            return True
+        if self.next is True:
+            self.next = False   
             return False
         return current_delete_value
         
@@ -102,7 +110,7 @@ class CyrillicLatin:
         temp_chars = None
         delete = False
         for ch in self.mangled_string:
-            delete = self.check_delete(ch)
+            delete = self.check_delete(ch, delete)
             if delete:
                 continue
             try:
@@ -154,8 +162,8 @@ def run():
         print output
         
 def test_run():
-    convert = CyrillicLatin('says: poamagash')
-    convert.delete_between('a', 'x')
+    convert = CyrillicLatin('momicheta')
+    convert.delete_between('[', ']')
     print convert.convert_to_cyrillic()
     
 if __name__ == '__main__':
