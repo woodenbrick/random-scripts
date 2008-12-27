@@ -46,7 +46,7 @@ class CyrillicLatin:
         else:
             index = self.latin_chars.index(chars)
             self.new_string.append(self.cyrillic_chars[index])
-    
+
     def check_holding_chars(self, current_char, temp_chars):
         
         if temp_chars is None:
@@ -82,18 +82,29 @@ class CyrillicLatin:
             
         
     def add_unknown_char(self, char, temp):
-        self.append_chars(temp)
+        if temp is not None:
+            self.append_chars(temp)
         self.new_string.append(char)
         self.unhold()
         return None
         
-
+    def check_delete(char, current_delete_value):
+        if char in self.delete_start_point:
+            return True
+        if char in self.delete_end_point:
+            return False
+        return current_delete_value
+        
   
     def convert_to_cyrillic(self):
         self.hold = False
         self.new_string = []
         temp_chars = None
+        delete = False
         for ch in self.mangled_string:
+            delete = self.check_delete(ch)
+            if delete:
+                continue
             try:
                 index = self.latin_chars.index(ch)
                 if ch in self.hold_chars:
@@ -109,6 +120,9 @@ class CyrillicLatin:
                 #the letter isnt in the list of latin letters, so just print as is.
                 #this causes the problem of held characters being skipped, needs fix
                 temp_chars = self.add_unknown_char(ch, temp_chars)
+                
+        if temp_chars is not None:
+            self.append_chars(temp_chars)
         return unicode(''.join(self.new_string))
 
 
@@ -140,8 +154,9 @@ def run():
         print output
         
 def test_run():
-    convert = CyrillicLatin('says: zdrasti')
+    convert = CyrillicLatin('says: poamagash')
+    convert.delete_between('a', 'x')
     print convert.convert_to_cyrillic()
     
 if __name__ == '__main__':
-    run()
+    test_run()
