@@ -144,4 +144,4 @@ def test_run():
     print convert.convert_to_cyrillic()
     
 if __name__ == '__main__':
-    test_run()
+    run()
