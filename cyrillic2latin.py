@@ -9,6 +9,8 @@ class CyrillicLatin:
     def __init__(self, mangled_string, latin = True):
         self.latin_chars = u'a b c d e f g h i j k l m n o p q r s t u v x y z 6 4'.split()
         self.cyrillic_chars = u'а б с д е ф г х и ж к л м н о п я р с т у в х y з б ч'.split()
+        self.latin_chars.append(' ')
+        self.cyrillic_chars.append(' ')
         self.mangled_string = unicode(string.lower(mangled_string))
         self.ignore_startpoint = []
         self.delete_startpoint = []
@@ -79,6 +81,12 @@ class CyrillicLatin:
                 
             
         
+    def add_unknown_char(self, char, temp):
+        self.append_chars(temp)
+        self.new_string.append(char)
+        self.unhold()
+        return None
+        
 
   
     def convert_to_cyrillic(self):
@@ -99,7 +107,8 @@ class CyrillicLatin:
                     
             except ValueError:
                 #the letter isnt in the list of latin letters, so just print as is.
-                self.new_string.append(ch)
+                #this causes the problem of held characters being skipped, needs fix
+                temp_chars = self.add_unknown_char(ch, temp_chars)
         return unicode(''.join(self.new_string))
 
 
