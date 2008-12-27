@@ -102,7 +102,9 @@ class CyrillicLatin:
                 self.new_string.append(ch)
         return unicode(''.join(self.new_string))
 
-if __name__ == '__main__':
+
+
+def run():
     parser = optparse.OptionParser()
     parser.add_option('--input-file', '-i')
     parser.add_option('--output-file', '-o')
@@ -127,3 +129,10 @@ if __name__ == '__main__':
         open(options.output_file, 'w').write(output + '\n')
     else:
         print output
+        
+def test_run():
+    convert = CyrillicLatin('says: zdrasti')
+    print convert.convert_to_cyrillic()
+    
+if __name__ == '__main__':
+    test_run()
