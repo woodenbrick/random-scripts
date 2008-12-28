@@ -1,14 +1,21 @@
 #!/usr/bin/python
 import os
 import sys
-try:
-    input_path = sys.argv[1]
-    output_path = '/home/wode/Desktop/' + os.path.basename(input_path)
-    print 'Input:', input_path
-    print 'Output', output_path
-    os.system("mencoder %s -oac mp3lame -ovc xvid -xvidencopts bitrate=-1 -vf scale -zoom -xy 320 -o %s" % (input_path, output_path))
-    print 'Encoding Complete!'
-    os.system('mtp-sendfile %s %s' % (output_path, '108'))
-except IndexError:
-    print 'please pass a video as an argument'
-
+import optparse
+import re
+parser = optparse.OptionParser()
+parser.add_option('--input', '-i')
+parser.add_option('--output', '-o')
+options, args = parser.parse_args()
+print 'Input:', options.input
+print 'Output', options.output
+input = re.escape(options.input)
+print 'inPUTT', input
+if options.input is None:
+    sys.exit('Please pass a video input as argument')
+if options.output is None:
+    options.output = os.path.join(os.environ['HOME'], options.input)
+    print options.output
+#os.system("mencoder %s -oac mp3lame -ovc xvid -xvidencopts bitrate=-1 -vf scale -zoom -xy 320 -o %s" % (input_path, output_path))
+print 'Encoding Complete!'
+    
