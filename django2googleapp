@@ -160,6 +160,10 @@ INSTALLED_APPS = (
 
 def create_file(filename, contents, dir):
     path = os.path.join(dir, filename)
+    try:
+        os.remove(path)
+    except OSError:
+        pass
     f = open(path, 'w')
     f.write(contents)
     f.close()
@@ -171,4 +175,5 @@ create_file('main.py', main_py, app_dir)
 create_file('app.yaml', app_yaml, app_dir)
 create_file('views.py', views_py, application)
 create_file('models.py', models_py, application)
+os.remove(os.path.join(app_dir, 'settings.pyc'))
 os.mkdir(template_dir)
