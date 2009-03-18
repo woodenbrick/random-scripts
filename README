@@ -5,3 +5,5 @@ avi2zen - encodes a movie file and transfers to zen
 cal2zen - downloads a google calendar and transfers it to the zen
 sub-demangler - encodes subtites (and other text files) that have been 
 mangled due to incorrect encoding.
+deb-prepare - takes source code and prepares it for debianization
+cyrillic2latin - takes bulgarian words typed in latin and converts them to their correct cyrillic forms
