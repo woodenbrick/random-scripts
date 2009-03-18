@@ -2,7 +2,7 @@
 import optparse
 import os
 import shutil
-
+import sys
 
 def convert_file(filepath, from_enc, to_enc):
     filepath = os.path.abspath(filepath)
