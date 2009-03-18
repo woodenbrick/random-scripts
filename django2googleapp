@@ -1,0 +1,179 @@
+#!/usr/bin/env python
+'''
+This script will setup a django project that is made to run on googleapp engine
+Pass it a appname
+'''
+import os
+import sys
+
+MAIN_DIR = os.getcwd()
+app_name = ''.join(sys.argv[1:])
+if app_name is '':
+    sys.exit('Pass app name as argument')
+app_dir = os.path.join(MAIN_DIR, app_name)
+application = os.path.join(app_dir, 'application')
+template_dir = os.path.join(app_dir, 'application', 'templates')
+main_py = """
+# main.py
+
+import os, sys
+os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
+
+# Google App Engine imports.
+from google.appengine.ext.webapp import util
+
+# Force Django to reload its settings.
+from django.conf import settings
+settings._target = None
+
+import django.core.handlers.wsgi
+import django.core.signals
+import django.db
+import django.dispatch.dispatcher
+
+# Unregister the rollback event handler.
+django.dispatch.dispatcher.disconnect(
+django.db._rollback_on_exception,
+django.core.signals.got_request_exception)
+
+def main():
+    # Create a Django application for WSGI.
+    application = django.core.handlers.wsgi.WSGIHandler()
+
+    # Run the WSGI CGI handler with that application.
+    util.run_wsgi_app(application)
+
+if __name__ == "__main__":
+    main()
+"""
+
+app_yaml = """
+application: %s
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /.*
+  script: main.py
+""" % app_name
+
+views_py = """
+# views.py
+
+from django import http
+import models
+
+"""
+
+models_py = """
+#models.py
+
+from google.appengine.ext import db
+
+#define your models here
+"""
+
+settings_py = """
+# Django settings for %s project.
+import os
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+
+ADMINS = (
+    # ('Your Name', 'your_email@domain.com'),
+)
+
+MANAGERS = ADMINS
+
+DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'ado_mssql'.
+DATABASE_NAME = ''             # Or path to database file if using sqlite3.
+DATABASE_USER = ''             # Not used with sqlite3.
+DATABASE_PASSWORD = ''         # Not used with sqlite3.
+DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+
+# Local time zone for this installation. Choices can be found here:
+# http://www.postgresql.org/docs/8.1/static/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
+# although not all variations may be possible on all operating systems.
+# If running in a Windows environment this must be set to the same as your
+# system time zone.
+TIME_ZONE = 'America/Chicago'
+
+# Language code for this installation. All choices can be found here:
+# http://www.w3.org/TR/REC-html40/struct/dirlang.html#langcodes
+# http://blogs.law.harvard.edu/tech/stories/storyReader$15
+LANGUAGE_CODE = 'en-us'
+
+SITE_ID = 1
+
+# If you set this to False, Django will make some optimizations so as not
+# to load the internationalization machinery.
+USE_I18N = True
+
+# Absolute path to the directory that holds media.
+# Example: "/home/media/media.lawrence.com/"
+MEDIA_ROOT = ''
+
+# URL that handles the media served from MEDIA_ROOT.
+# Example: "http://media.lawrence.com"
+MEDIA_URL = ''
+
+# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
+# trailing slash.
+# Examples: "http://foo.com/media/", "/media/".
+ADMIN_MEDIA_PREFIX = '/media/'
+
+# Make this unique, and don't share it with anybody.
+# You should change this because the django2googleapp script will give the same value every time.
+SECRET_KEY = 'hsd0e95yqxf$xi8o2(4joad@(3g@5gt)#d30x!qb-13yc&2vr)'
+
+# List of callables that know how to import templates from various sources.
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.load_template_source',
+    'django.template.loaders.app_directories.load_template_source',
+#     'django.template.loaders.eggs.load_template_source',
+)
+
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.doc.XViewMiddleware',
+)
+
+ROOT_URLCONF = 'urls'
+
+TEMPLATE_DIRS = ('%s',
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+)
+
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+)
+""" % (app_name, template_dir)
+
+def create_file(filename, contents, dir):
+    path = os.path.join(dir, filename)
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+    f = open(path, 'w')
+    f.write(contents)
+    f.close()
+
+os.system('django-admin.py startproject %s' % app_name)
+os.system('python %s/manage.py startapp %s' % (app_name, 'application'))
+create_file('settings.py', settings_py, app_dir)
+create_file('main.py', main_py, app_dir)
+create_file('app.yaml', app_yaml, app_dir)
+create_file('views.py', views_py, application)
+create_file('models.py', models_py, application)
+os.remove(os.path.join(app_dir, 'settings.pyc'))
+os.mkdir(template_dir)

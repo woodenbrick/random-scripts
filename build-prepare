@@ -1,0 +1,42 @@
+#!/usr/bin/env python
+import os
+import sys
+
+cwd = os.getcwd()
+orig_prog_name = os.path.basename(cwd)
+build_dir = os.path.join(cwd, "build")
+
+try:
+        os.mkdir(build_dir)
+except:
+        print 'build dir exists'
+
+version = raw_input("version: ")
+clean = raw_input("clean build dir: (y/n):")
+if clean == 'y':
+        os.system("rm -R %s/*" % build_dir)
+program_name = orig_prog_name + "-" + version
+src_dir = os.path.join(build_dir, program_name) 
+
+try:
+        os.mkdir(src_dir)
+except:
+        sys.exit("%s already exists, exiting." % src_dir)
+unwanted_files = ['*.kpf', '*.pyc', '.gitignore']
+wanted_dirs = ['glade']
+os.system("cp %s/* %s" % (cwd, src_dir))
+
+for dir in wanted_dirs:
+        os.system("cp -R %s %s" % (dir, src_dir))
+
+for file in unwanted_files:
+        os.system("rm %s" % src_dir + os.sep + file)
+os.chdir(build_dir)
+os.system("tar -zvcf %s.tar.gz %s" % (program_name, program_name))
+os.system("cp %s.tar.gz %s.orig.tar.gz" % (program_name, orig_prog_name + "_" + version)) 
+os.system("cp -r %s %s" % ("/home/wode/programming/debian-base", src_dir + "/debian"))
+
+f = open(src_dir + "/debian/changelog", "w")
+f.write("%s (%s-1) intrepid; urgency=low" % (orig_prog_name, version))
+f.close()
+

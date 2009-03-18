@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
+<<<<<<< HEAD:avi2zen
 import optparse
 import re
 parser = optparse.OptionParser()
@@ -19,3 +20,25 @@ if options.output is None:
 #os.system("mencoder %s -oac mp3lame -ovc xvid -xvidencopts bitrate=-1 -vf scale -zoom -xy 320 -o %s" % (input_path, output_path))
 print 'Encoding Complete!'
     
+=======
+import string
+
+def escape_paths(input_path):
+    escape_chars = r"""( ) [ ] { } " '""".split()
+    escape_chars.append(' ')
+    new_input_path = []
+    for i in input_path:
+        if i in escape_chars:
+            new_input_path.append('\\')
+        new_input_path.append(i)
+    return ''.join(new_input_path)
+
+try:
+    input_path = escape_paths(''.join(sys.argv[1:]))
+    output_path = '/home/wode/Desktop/' + os.path.basename(input_path)
+    os.system("mencoder %s -oac mp3lame -ovc xvid -xvidencopts bitrate=-1 -vf scale -zoom -xy 320 -o %s" % (input_path, output_path))
+    print 'Encoding Complete!'
+    os.system('mtp-sendfile %s %s' % (output_path, '108'))
+except IndexError:
+    print 'please pass a video as an argument'
+
