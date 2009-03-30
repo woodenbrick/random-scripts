@@ -24,6 +24,13 @@ except:
     sys.exit("%s already exists, exiting." % src_dir)
 unwanted_files = ['*.kpf', '*.pyc', '.gitignore']
 wanted_dirs = ['glade']
+wanted = raw_input("add wanted dirs (glade is already included)")
+if wanted is not "":
+    wanted = wanted.split(" ")
+    for w in wanted:
+        wanted_dirs.append(w)
+print 'Wanted dirs:', wanted_dirs
+
 os.system("cp %s/* %s" % (cwd, src_dir))
 
 for dir in wanted_dirs:
@@ -37,23 +44,22 @@ os.system("cp %s.tar.gz %s.orig.tar.gz" % (program_name, orig_prog_name + "_" +
 version))
 #check build directory first to see if we have the debian base
 #if not import a generic one
-if os.path.exists(build_dir, "/.debian-base"):
-    os.system("cp -r %s %s" (build_dir + "/.debian-base", src_dir + "/debian"))
+if os.path.exists(cwd + "/.debian-base"):
+    os.system("cp -r %s %s" % (cwd + "/.debian-base", src_dir + "/debian"))
 else:
     os.system("cp -r %s %s" % ("/home/wode/programming/debian-base", src_dir + "/debian"))
-    os.system("cp -r %s %s" % ("/home/wode/programming/debian-base", build_dir +
+    os.system("cp -r %s %s" % ("/home/wode/programming/debian-base", cwd +
     "/.debian-base"))
 
 
-bin = raw_input("Change version in binary file. The version variable must be in
-the form __version__ leave blank to use %s as your binary file" %s orig_prog_name)
+bin = raw_input("Change version in binary file. The version variable must be in the form __version__ leave blank to use %s as your binary file" % orig_prog_name)
 if bin == "":
     bin = orig_prog_name
 lines = open(src_dir + "/" + bin, "r").readlines()
 for i in range(0, len(lines)):
     if "__version__" in lines[i]:
         old_version = lines[i].split('"')
-		lines[i] = old_version[0] + '"' + version + '"' + "\n"
+        lines[i] = old_version[0] + '"' + version + '"' + "\n"
         break
 
 f = open (src_dir + "/" + bin, "w")
