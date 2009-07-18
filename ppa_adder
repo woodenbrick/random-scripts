@@ -1,0 +1,20 @@
+#!/usr/bin/python 
+import os
+import sys
+import urllib2
+import re
+
+dist = "intrepid" #set this to your correct distribution
+
+request = urllib2.urlopen(sys.argv[1]).read()
+try:
+    ppa_key = re.search("<code>[A-Z0-9]+/([A-Z0-9]+)</code>", request).group(1)
+    url = re.search('deb <a href="(http://[a-z\./-]+)"', request).group(1)
+except:
+    sys.exit("Incorrect url, or couldnt parse")
+print 'Updating apt sources'
+os.system('echo "deb %s %s main" | sudo tee -a /etc/apt/sources.list' % (url, dist))
+os.system('sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys %s' % ppa_key)
+os.system('sudo apt-get update')
+print 'Done, you can now install software from this PPA'
+
