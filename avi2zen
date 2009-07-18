@@ -19,7 +19,6 @@ if options.output is None:
 #os.system("mencoder %s -oac mp3lame -ovc xvid -xvidencopts bitrate=-1 -vf scale -zoom -xy 320 -o %s" % (input_path, output_path))
 print 'Encoding Complete!'
     
-=======
 import string
 
 def escape_paths(input_path):
